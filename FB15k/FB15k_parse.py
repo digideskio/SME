@@ -5,7 +5,7 @@ import numpy as np
 import scipy.sparse as sp
 
 # Put the freebase15k data absolute path here
-datapath = '/Users/rockt/workspace/SME/FB15k/'
+datapath = './FB15k/'
 assert datapath is not None
 
 if 'data' not in os.listdir('../'):
