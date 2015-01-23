@@ -1,33 +1,61 @@
-*** Setting up Python on cannon
+****** Running
+******* Setting up Python on cannon
 #+BEGIN_SRC sh :session transe :results silent
 source new-environment/bin/activate
 bash
 #+END_SRC
 
-*** Open session and move to the right directory
+******* Open session and move to the right directory
 #+BEGIN_SRC sh :session transe :results silent
 cd ~/workspace/SME
 #+END_SRC
 
-*** Download corpora
+******* Download corpora
+******** FB15k
 #+BEGIN_SRC sh :session transe :results silent
 wget -P FB15k https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:fb15k.tgz
 tar xvfz FB15k/fetch.php\?media\=en\:fb15k.tgz 
 #+END_SRC
 
-*** Parse data
+******** WN
+#+BEGIN_SRC sh :session transe :results silent
+wget -P WN https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:wordnet-mlj12.tar.gz
+tar xvfz WN/fetch.php?media=en:wordnet-mlj12.tar.gz
+#+END_SRC
+
+
+******* Parse data
+******** NAACL
+#+BEGIN_SRC sh :session transe
+python NAACL/NAACL_parse.py
+#+END_SRC
+
+******** FB15k
 #+BEGIN_SRC sh :session transe
 python FB15k/FB15k_parse.py
 #+END_SRC
 
-*** Run models
-**** TransE
+******* Train models
+******** TransE
+********* FB15k
 #+BEGIN_SRC sh :session transe :results silent
 cd FB15k
 python FB15k_TransE.py
 #+END_SRC
 
-*** Evaluate model
+********* NAACL
+#+BEGIN_SRC sh :session transe :results silent
+cd NAACL
+python NAACL_TransE.py
+#+END_SRC
+
+******* Evaluate model
+******** FB15k
 #+BEGIN_SRC sh :session transe :results silent
 python FB15k_evaluation.py FB15k_TransE/best_valid_model.pkl 
+#+END_SRC
+
+******** NAACL
+#+BEGIN_SRC sh :session transe :results silent
+python NAACL_evaluation.py NAACL_TransE/best_valid_model.pkl 
 #+END_SRC
