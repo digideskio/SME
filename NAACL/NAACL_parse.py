@@ -87,7 +87,8 @@ g.close()
 unseen_ents=[]
 remove_tst_ex=[]
 
-for datatyp in ['train', 'valid', 'test']:
+#for datatyp in ['train', 'valid', 'test']:
+for datatyp in ['train', 'test']:
     print datatyp
     f = open(datapath + 'naacl-triplet-%s.txt' % datatyp, 'r')
     dat = f.readlines()
