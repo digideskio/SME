@@ -8,8 +8,8 @@ import scipy.sparse as sp
 datapath = './NAACL/'
 assert datapath is not None
 
-if 'data' not in os.listdir('../'):
-    os.mkdir('../data')
+if 'data' not in os.listdir('.'):
+    os.mkdir('./data')
 
 
 def parseline(line):
@@ -74,8 +74,8 @@ for i in relset:
 nbrel = idx - (nbright + nbshared + nbleft)
 print "Number of relations: ", nbrel
 
-f = open('../data/NAACL_entity2idx.pkl', 'w')
-g = open('../data/NAACL_idx2entity.pkl', 'w')
+f = open('./data/NAACL_entity2idx.pkl', 'w')
+g = open('./data/NAACL_idx2entity.pkl', 'w')
 cPickle.dump(entity2idx, f, -1)
 cPickle.dump(idx2entity, g, -1)
 f.close()
@@ -122,9 +122,9 @@ for datatyp in ['train', 'test']:
     # Save the datasets
     if 'data' not in os.listdir('../'):
         os.mkdir('../data')
-    f = open('../data/NAACL-%s-lhs.pkl' % datatyp, 'w')
-    g = open('../data/NAACL-%s-rhs.pkl' % datatyp, 'w')
-    h = open('../data/NAACL-%s-rel.pkl' % datatyp, 'w')
+    f = open('./data/NAACL-%s-lhs.pkl' % datatyp, 'w')
+    g = open('./data/NAACL-%s-rhs.pkl' % datatyp, 'w')
+    h = open('./data/NAACL-%s-rel.pkl' % datatyp, 'w')
     cPickle.dump(inpl.tocsr(), f, -1)
     cPickle.dump(inpr.tocsr(), g, -1)
     cPickle.dump(inpo.tocsr(), h, -1)
