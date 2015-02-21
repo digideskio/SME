@@ -14,9 +14,9 @@ if 'data' not in os.listdir('.'):
 
 def parseline(line):
     lhs, rel, rhs = line.split('\t')
-    lhs = lhs.split(' ')
-    rhs = rhs.split(' ')
-    rel = rel.split(' ')
+    lhs = [lhs] #.split(' ')
+    rhs = [rhs] #.split(' ')
+    rel = [rel] #.split(' ')
     return lhs, rel, rhs
 
 #################################################
@@ -66,6 +66,7 @@ for i in entleftset:
 nbleft = idx - (nbshared + nbright)
 
 print "# of only_left/shared/only_right entities: ", nbleft, '/', nbshared, '/', nbright
+print "# entities: ", len(entity2idx)
 # add relations at the end of the dictionary
 for i in relset:
     entity2idx[i] = idx
@@ -87,10 +88,12 @@ g.close()
 unseen_ents=[]
 remove_tst_ex=[]
 
-#for datatyp in ['train', 'valid', 'test']:
-for datatyp in ['train', 'test']:
+for datatyp in ['train', 'valid', 'test']:
+#for datatyp in ['train', 'test']:
     print datatyp
-    f = open(datapath + 'naacl-triplet-%s.txt' % datatyp, 'r')
+    file = datatyp
+    if datatyp == 'valid': file = 'test'
+    f = open(datapath + 'naacl-triplet-%s.txt' % file, 'r')
     dat = f.readlines()
     f.close()
 
