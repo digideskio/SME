@@ -1,4 +1,4 @@
-** Training TransE on NAACL data
+** Training TransE on NAACL data 
 *** Setting up Python on cannon
 #+BEGIN_SRC sh :session transe :results silent
 source new-environment/bin/activate
@@ -32,17 +32,14 @@ python NAACL/NAACL_parse.py
 
 **** FB15k
 #+BEGIN_SRC sh :session transe
-cd FB15k
-python FB15k_parse.py
-cd ..
+python FB15k/FB15k_parse.py
 #+END_SRC
 
 *** Train models
 **** TransE
 ***** FB15k
 #+BEGIN_SRC sh :session transe :results silent
-cd FB15k
-python FB15k_TransE.py
+python FB15k/FB15k_TransE.py
 #+END_SRC
 
 ***** NAACL
