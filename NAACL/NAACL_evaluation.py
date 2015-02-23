@@ -11,10 +11,22 @@ def convert2idx(spmat):
     rows, cols = spmat.nonzero()
     return rows[np.argsort(cols)]
 
+def write_predictions(preds, file):
+    """
+    Write out the test predictions into a file.
+    :return: None
+    """
+    print "Sorting"
+    arr = sorted(preds, key=lambda student: student[0], reverse=True)
+    print "Writing to " + file
+    f = open(file, 'w')
+    for a in arr:
+        f.write('{score:f}\t{e1}\t{e2}\t{val}\t{rel}\n'.format(score=a[0], e1=a[1], e2=a[2], val=a[3], rel=a[4]))
+    f.close
 
-def RankingEval(datapath='../data/', dataset='NAACL-test',
-        loadmodel='best_valid_model.pkl', neval='all', Nsyn=14951, n=10,
-        idx2synsetfile='FB15k_idx2entity.pkl'):
+def RankingEval(datapath='./data/', dataset='NAACL-test',
+        loadmodel='best_valid_model.pkl', neval='all', Nsyn=24518, n=10,
+        idx2synsetfile='NAACL_idx2entity.pkl', outfile='./NAACL/preds.txt'):
 
     # Load model
     f = open(loadmodel)
@@ -45,6 +57,18 @@ def RankingEval(datapath='../data/', dataset='NAACL-test',
             subtensorspec=Nsyn)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn)
+
+    rankfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,subtensorspec=Nsyn)
+    mainIdx = cPickle.load(open(datapath + idx2synsetfile))
+    preds = []
+    for i in xrange(len(idxo)):
+        result=rankfunc(idxl[i], idxr[i])
+        for r in xrange(len(result[0])):
+            score=result[0][r]
+            rname=mainIdx[r+Nsyn]
+            if rname.startswith('REL$'):
+                preds.append((score, mainIdx[idxl[i]], mainIdx[idxr[i]], "REL$NA", rname))
+    write_predictions(preds, outfile)
 
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo)
     dres = {}
