@@ -6,6 +6,13 @@ def load_file(path):
     return scipy.sparse.csr_matrix(cPickle.load(open(path)),
             dtype=theano.config.floatX)
 
+def parseline(line):
+    lhs, rel, rhs, v = line.split('\t')
+    lhs = [lhs] #.split(' ')
+    rhs = [rhs] #.split(' ')
+    rel = [rel] #.split(' ')
+    v = float(v)
+    return lhs, rel, rhs, v
 
 def convert2idx(spmat):
     rows, cols = spmat.nonzero()
@@ -24,9 +31,46 @@ def write_predictions(preds, file):
         f.write('{score:f}\t{e1}\t{e2}\t{val}\t{rel}\n'.format(score=a[0], e1=a[1], e2=a[2], val=a[3], rel=a[4]))
     f.close
 
+def naaclEval(datapath='./data/', synset2Idxfile='NAACL_entity2idx.pkl', 
+        testTriplets="./NAACL/naacl-triplet-test.txt", loadmodel='best_valid_model.pkl',
+        idx2synsetfile='NAACL_idx2entity.pkl', synset2idxfile='NAACL_entity2idx.pkl', 
+        outfile='./NAACL/preds.txt', Nsyn=24518):
+    # Load model
+    f = open(loadmodel)
+    embeddings = cPickle.load(f)
+    leftop = cPickle.load(f)
+    rightop = cPickle.load(f)
+    simfn = cPickle.load(f)
+    f.close()
+
+    ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
+            subtensorspec=Nsyn)
+    rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
+            subtensorspec=Nsyn)
+    rankfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,subtensorspec=Nsyn)
+
+    name2Idx = cPickle.load(open(datapath + synset2idxfile))
+    mainIdx = cPickle.load(open(datapath + idx2synsetfile))
+    print "name2Idx: ", len(name2Idx)
+    print "mainIdx: ", len(mainIdx)
+
+    f = open(testTriplets, 'r')
+    dat = f.readlines()
+    f.close()
+    preds = []
+    for i in dat:
+        lhs, rel, rhs, v = parseline(i[:-1])
+        if lhs[0] in name2Idx and rhs[0] in name2Idx and rel[0] in name2Idx: 
+            idxl=name2Idx[lhs[0]]
+            idxr=name2Idx[rhs[0]]
+            idxo=name2Idx[rel[0]]
+            result=rankfunc(idxl, idxr)
+            score=result[0][idxo-Nsyn]
+            preds.append((score, lhs[0], rhs[0], str(v), rel[0]))
+    write_predictions(preds, outfile)
+
 def RankingEval(datapath='./data/', dataset='NAACL-test',
-        loadmodel='best_valid_model.pkl', neval='all', Nsyn=24518, n=10,
-        idx2synsetfile='NAACL_idx2entity.pkl', outfile='./NAACL/preds.txt'):
+        loadmodel='best_valid_model.pkl', neval='all', Nsyn=24518, n=10):
 
     # Load model
     f = open(loadmodel)
@@ -59,15 +103,6 @@ def RankingEval(datapath='./data/', dataset='NAACL-test',
             subtensorspec=Nsyn)
 
     rankfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,subtensorspec=Nsyn)
-    mainIdx = cPickle.load(open(datapath + idx2synsetfile))
-    preds = []
-    for i in xrange(len(idxo)):
-        result=rankfunc(idxl[i], idxr[i])
-        score=result[0][idxo[i]]
-        rname=mainIdx[idxo[i]+Nsyn]
-        preds.append((score, mainIdx[idxl[i]], mainIdx[idxr[i]], "REL$NA", rname))
-    write_predictions(preds, outfile)
-
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo)
     dres = {}
     dres.update({'microlmean': np.mean(res[0])})
@@ -161,4 +196,5 @@ def RankingEval(datapath='./data/', dataset='NAACL-test',
 
 
 if __name__ == '__main__':
+    naaclEval(loadmodel=sys.argv[1])
     RankingEval(loadmodel=sys.argv[1])
