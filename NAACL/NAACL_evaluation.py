@@ -63,11 +63,9 @@ def RankingEval(datapath='./data/', dataset='NAACL-test',
     preds = []
     for i in xrange(len(idxo)):
         result=rankfunc(idxl[i], idxr[i])
-        for r in xrange(len(result[0])):
-            score=result[0][r]
-            rname=mainIdx[r+Nsyn]
-            if rname.startswith('REL$'):
-                preds.append((score, mainIdx[idxl[i]], mainIdx[idxr[i]], "REL$NA", rname))
+        score=result[0][idxo[i]]
+        rname=mainIdx[idxo[i]+Nsyn]
+        preds.append((score, mainIdx[idxl[i]], mainIdx[idxr[i]], "REL$NA", rname))
     write_predictions(preds, outfile)
 
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo)
