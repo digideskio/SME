@@ -13,11 +13,12 @@ if 'data' not in os.listdir('.'):
 
 
 def parseline(line):
-    lhs, rel, rhs = line.split('\t')
+    lhs, rel, rhs, v = line.split('\t')
     lhs = [lhs] #.split(' ')
     rhs = [rhs] #.split(' ')
     rel = [rel] #.split(' ')
-    return lhs, rel, rhs
+    v = float(v)
+    return lhs, rel, rhs, v
 
 #################################################
 ### Creation of the entities/indices dictionnaries
@@ -33,7 +34,7 @@ for datatyp in ['train']:
     dat = f.readlines()
     f.close()
     for i in dat:
-        lhs, rel, rhs = parseline(i[:-1])
+        lhs, rel, rhs, v = parseline(i[:-1])
         entleftlist += [lhs[0]]
         entrightlist += [rhs[0]]
         rellist += [rel[0]]
@@ -107,11 +108,11 @@ for datatyp in ['train', 'valid', 'test']:
     # Fill the sparse matrices
     ct = 0
     for i in dat:
-        lhs, rel, rhs = parseline(i[:-1])
+        lhs, rel, rhs, v = parseline(i[:-1])
         if lhs[0] in entity2idx and rhs[0] in entity2idx and rel[0] in entity2idx: 
-            inpl[entity2idx[lhs[0]], ct] = 1
-            inpr[entity2idx[rhs[0]], ct] = 1
-            inpo[entity2idx[rel[0]], ct] = 1
+            inpl[entity2idx[lhs[0]], ct] = v
+            inpr[entity2idx[rhs[0]], ct] = v
+            inpo[entity2idx[rel[0]], ct] = v
             ct += 1
         else:
             if lhs[0] in entity2idx:
